@@ -1,2 +1,2 @@
 # crane
-crane is a golang web development support library, it is not a framework, it just provides as many functions as possible in the web development of golang
+Crane is a golang web development support library, it is not a framework, it just provides as many functions as possible that may be used in the web development of golang, all the functions may be integrated tripartite libraries, or they may be developed from scratch, as long as they are needed, they may exist
