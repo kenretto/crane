@@ -21,7 +21,7 @@ type iLogger struct {
 	SlowThreshold time.Duration
 }
 
-// LogMode 设置日志级别
+// LogMode set log level
 func (log *iLogger) LogMode(level logger.LogLevel) logger.Interface {
 	newLogger := *log
 	newLogger.level = level

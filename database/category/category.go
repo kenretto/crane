@@ -9,37 +9,37 @@ import (
 )
 
 type (
-	// Node 分类信息
+	// Node classification information
 	Node struct {
-		Alias       string `json:"alias"`       // 可能是页面链接拼接需要的数据, 比如 items?category={alias} 或者 items/{alias}
-		Name        string `json:"name"`        // 分类展示名字
-		Pic         string `json:"pic"`         // 图标
-		Badge       string `json:"badge"`       // 徽章,可能会存在的角标
-		Description string `json:"description"` // 可能存在的简介
-		Next        Nodes  `json:"next"`        // 子分类
+		Alias       string `json:"alias"`       // It may be the data needed for page link splicing, such as items?category={alias} or items/{alias}
+		Name        string `json:"name"`        // category display name
+		Pic         string `json:"pic"`         // icon
+		Badge       string `json:"badge"`       // badges, possible corner markers
+		Description string `json:"description"` // possible introduction
+		Next        Nodes  `json:"next"`        // subcategory
 	}
-	// Nodes 指定一级的分类信息
+	// Nodes specify a level of classification information
 	Nodes []*Node
 
-	// Tree 所有分类原始数据(已排序)
+	// Tree all classified raw data (sorted)
 	Tree struct {
 		items    reflect.Value
 		category *Category
 	}
 
-	// Category 分类实例
+	// Category classification
 	Category struct {
 		aliasField, nameField, picField, badgeField, levelField, descriptionField, PidField, IDField string
 		tableName                                                                                    func() string
 		tableTyp                                                                                     reflect.Type
 	}
 
-	// Table 表操作
+	// Table orm table handler
 	Table struct {
 		category *Category
 	}
 
-	// Option 统一设置
+	// Option setup
 	Option func(category *Category)
 )
 
@@ -50,7 +50,7 @@ var (
 	}
 )
 
-// SetDescriptionField 设置详情简介的字段名
+// SetDescriptionField set the field name of the detail profile
 func SetDescriptionField(field string) Option {
 	return func(category *Category) {
 		if category.descriptionField == "" {
@@ -59,7 +59,7 @@ func SetDescriptionField(field string) Option {
 	}
 }
 
-// SetPidField 设置父级标识字段名
+// SetPidField set parent identity field name
 func SetPidField(field string) Option {
 	return func(category *Category) {
 		if category.PidField == "" {
@@ -68,7 +68,7 @@ func SetPidField(field string) Option {
 	}
 }
 
-// SetIDField 设置id字段名
+// SetIDField set id field name
 func SetIDField(field string) Option {
 	return func(category *Category) {
 		if category.IDField == "" {
@@ -77,7 +77,7 @@ func SetIDField(field string) Option {
 	}
 }
 
-// SetLevelField 设置分级字段名
+// SetLevelField set hierarchical field name
 func SetLevelField(field string) Option {
 	return func(category *Category) {
 		if category.levelField == "" {
@@ -86,7 +86,7 @@ func SetLevelField(field string) Option {
 	}
 }
 
-// SetBadgeField 设置角标徽章字段名
+// SetBadgeField set corner badge field name
 func SetBadgeField(field string) Option {
 	return func(category *Category) {
 		if category.badgeField == "" {
@@ -95,7 +95,7 @@ func SetBadgeField(field string) Option {
 	}
 }
 
-// SetPicField 设置图标字段名
+// SetPicField set icon field name
 func SetPicField(field string) Option {
 	return func(category *Category) {
 		if category.picField == "" {
@@ -104,7 +104,7 @@ func SetPicField(field string) Option {
 	}
 }
 
-// SetNameField 设置显示名字字段名
+// SetNameField set display name field name
 func SetNameField(field string) Option {
 	return func(category *Category) {
 		if category.nameField == "" {
@@ -113,7 +113,7 @@ func SetNameField(field string) Option {
 	}
 }
 
-// SetAliasField 设置别名字段字段名
+// SetAliasField set alias field field name
 func SetAliasField(field string) Option {
 	return func(category *Category) {
 		if category.aliasField == "" {
@@ -129,15 +129,13 @@ func newItems(typ reflect.Type) reflect.Value {
 	return items
 }
 
-// New 分类对象
+// New classification
 func New(options ...Option) *Category {
 	var category = new(Category)
-	// 先按用户配置对字段赋值
 	for _, option := range options {
 		option(category)
 	}
 
-	// 设置方法内部只会对用户没有配置的字段进行赋值
 	for _, option := range defaultSetting {
 		option(category)
 	}
@@ -145,14 +143,14 @@ func New(options ...Option) *Category {
 	return category
 }
 
-// Table 获得表结构, 不要传指针
+// Table get the table structure do not pass a pointer
 func (category *Category) Table(table database.Table) *Table {
 	category.tableName = table.TableName
 	category.tableTyp = reflect.TypeOf(table)
 	return &Table{category: category}
 }
 
-// WithDB 使用 gorm 驱动库
+// WithDB use gorm
 func (table *Table) WithDB(db *gorm.DB) *Tree {
 	items := newItems(table.category.tableTyp)
 	field, _ := table.category.tableTyp.FieldByName(table.category.levelField)
@@ -171,7 +169,7 @@ func (table *Table) WithDB(db *gorm.DB) *Tree {
 	return &Tree{items: items.Elem(), category: table.category}
 }
 
-// Categories 获得分类树
+// Categories get tree
 func (tree *Tree) Categories() Nodes {
 	dataLen := tree.items.Len()
 	var nodes, tmp = make(Nodes, 0), make(map[string]*Node)
@@ -182,7 +180,7 @@ func (tree *Tree) Categories() Nodes {
 		tmp[id] = newNode(item, tree.category)
 
 		if pid == "" {
-			// 如果pid为空默认为顶级分类
+			// If pid is empty, it is the top-level classification by default
 			nodes = append(nodes, tmp[id])
 		} else {
 			if _, ok := tmp[pid]; ok {

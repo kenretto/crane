@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// Logger logger
 type Logger struct {
 	Config struct {
 		MaxAge       string `mapstructure:"max_age"`
@@ -25,6 +26,7 @@ type Logger struct {
 	rw         sync.RWMutex
 }
 
+// LogLevel logger level
 func (l *Logger) LogLevel() logrus.Level {
 	return map[string]logrus.Level{
 		"panic": logrus.PanicLevel,
@@ -94,6 +96,7 @@ func (l *Logger) newInstance() {
 	l.logger.SetReportCaller(l.Config.ReportCaller)
 }
 
+// OnChange When the configuration file changes, the logger will be reinitialized
 func (l *Logger) OnChange(viper *viper.Viper) {
 	l.rw.Lock()
 	defer l.rw.Unlock()
@@ -101,13 +104,14 @@ func (l *Logger) OnChange(viper *viper.Viper) {
 	l.newInstance()
 }
 
+// Instance get logger instance
 func (l *Logger) Instance() *logrus.Logger {
 	l.rw.RLock()
 	defer l.rw.RUnlock()
 	return l.logger
 }
 
-// 当添加了文件写入的 hook 之后禁用终端输出
+// disable terminal output after adding hook for file writing
 type nilWriter struct {
 }
 

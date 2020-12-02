@@ -10,18 +10,20 @@ import (
 	"time"
 )
 
+// Node config info
 type Node struct {
 	LogLevel string `mapstructure:"log_level"`
 	DSN      string `mapstructure:"dsn"`
 	MaxIdle  int    `mapstructure:"max_idle"`
 	MaxOpen  int    `mapstructure:"max_open"`
 	Replicas struct {
-		Connections []string `mapstructure:"connections"` // 所有复制集连接
+		Connections []string `mapstructure:"connections"` // all replica set connections
 		MaxIdle     int      `mapstructure:"max_idle"`
 		MaxOpen     int      `mapstructure:"max_open"`
 	} `mapstructure:"replicas"`
 }
 
+// Loader orm init tool
 type Loader struct {
 	nodes map[string]Node
 
@@ -31,12 +33,14 @@ type Loader struct {
 	conns  map[string]*gorm.DB
 }
 
+// NewORM new orm
 func NewORM(logger *logrus.Entry) *Loader {
 	loader := new(Loader)
 	loader.logger = logger
 	return loader
 }
 
+// OnChange when the configuration file changes, the connection to the database will be re established
 func (loader *Loader) OnChange(viper *viper.Viper) {
 	loader.rw.Lock()
 	defer loader.rw.Unlock()
@@ -91,6 +95,7 @@ func (loader *Loader) newInstance() {
 	loader.conns = conns
 }
 
+// DB get *gorm.DB  If the DB parameter is passed in, the connection of the specified configuration node in the configuration file will be obtained. Otherwise, the connection of the default master node will be taken
 func (loader *Loader) DB(db ...string) *gorm.DB {
 	loader.rw.RLock()
 	defer loader.rw.RUnlock()

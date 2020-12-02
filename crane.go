@@ -73,16 +73,18 @@ func (crane *Crane) Logger() *logrus.Logger {
 	return crane.logger.Instance()
 }
 
-// Handler
+// Handler set handler
 func (crane *Crane) Handler(handler func(router *gin.Engine)) {
 	crane.server.Handler(handler)
 }
 
+// Run start service
 func (crane *Crane) Run() {
 	crane.Configurator.Add("server", crane.server)
 	crane.server.Run()
 }
 
+// Sessions get sessions
 func (crane *Crane) Sessions() *sessions.Sessions {
 	return crane.sessions
 }

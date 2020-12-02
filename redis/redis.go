@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// Redis redis
 type Redis struct {
 	logger ILogger
 	Config Config
@@ -18,12 +19,14 @@ type Redis struct {
 	rw sync.RWMutex
 }
 
+// Instance get redis instance
 func (s *Redis) Instance() redis.Cmdable {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 	return s.r
 }
 
+// OnChange when the configuration file changes, a redis object will be re instantiated
 func (s *Redis) OnChange(viper *viper.Viper) {
 	s.rw.Lock()
 	defer s.rw.Unlock()
@@ -31,10 +34,12 @@ func (s *Redis) OnChange(viper *viper.Viper) {
 	s.r = s.Config.NewRedis()
 }
 
+// SetLogger set logger
 func (s *Redis) SetLogger(logger ILogger) {
 	s.logger = logger
 }
 
+// Config redis config
 type Config struct {
 	RedisType string `mapstructure:"redis_type"`
 
@@ -86,6 +91,7 @@ func (config Config) parseDuration(s string) time.Duration {
 	return duration
 }
 
+// NewRedis instantiate a new redis operation object according to the configuration information
 func (config Config) NewRedis() redis.Cmdable {
 	var r redis.Cmdable
 	switch config.RedisType {

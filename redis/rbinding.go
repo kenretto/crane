@@ -10,24 +10,24 @@ import (
 )
 
 // RBinding redis go type binding
-//  使用 gob 序列化, gob 是 golang 提供的序列化 golang 的一种操作, 但是无法对 interface{} 做序列化操作, 例如你拥有以下结构体,
+//  Using gob serialization, gob is an operation provided by golang to serialize golang, but interface{} cannot be serialized. For example, you have the following structure,
 //   type User struct {
 //       Username string
 //       FieldAny interface{}
 //   }
-// 那么实际上使用 gob 对该结构体对象做序列化反序列化操作时都将返回错误, 因为 gob 不会自动去帮助你处理类型问题, 但是 gob 提供了两个方法,
-// gob.Register 和 gob.RegisterName , 这两个方法是将你的类型注册给 gob 全局的一个操作, 建议使用 gob.RegisterName , 虽然两者作用相差不大,
-// gob.RegisterName 内部使用的 sync.Map 管理注册的类型, 所以其实可以不用太关系在什么地方注册的问题以及并发的问题, 问题都不大, 所以你可以选择在控制器
-// 或者任何地方去注册, 但是记得在你使用序列化操作和反序列化操作之前注册进去了进行,
-// 需要注意的是, gob.RegisterName 不会接受同一个 name 前后注册的类型不一样这种问题, 比如 gob.RegisterName("a", A{}); gob.RegisterName("a", B{}),
-// 这样操作的话将会得到异常
+// In fact, when using gob to serialize and deserialize the structure object, an error will be returned, because gob will not automatically help you deal with type problems, but gob provides two methods,
+// gob.Register and gob.RegisterName , These two methods are an operation to register your type to gob global, which is recommended gob.RegisterName  Although there is little difference between them,
+// gob.RegisterName internal use sync.Map manage the type of registration, So in fact, it doesn't have to do with where to register and concurrency,
+// So you can choose to register in the controller or anywhere, but remember to register before you use serialization and deserialization,
+// It should be noted that, gob.RegisterName will not accept the problem that the type of registration before and after the same name is different, such as gob.RegisterName("a", A{}); gob.RegisterName("a", B{}),
+// If you do this, will panic
 type RBinding struct {
 	client *Redis
 	log    ILogger
 	ctx    context.Context
 }
 
-// NewDefaultRBinding 获取一个默认的 RBinding 操作绑定
+// NewDefaultRBinding Gets a default binding for the rbinding operation
 func NewDefaultRBinding(ctx context.Context, r *Redis) *RBinding {
 	return &RBinding{
 		client: r,

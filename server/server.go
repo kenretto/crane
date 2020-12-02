@@ -18,6 +18,7 @@ import (
 	"time"
 )
 
+// HTTPServer default http server
 type HTTPServer struct {
 	PID                  string `mapstructure:"pid"`
 	ServiceName          string `mapstructure:"name"`
@@ -34,6 +35,7 @@ type HTTPServer struct {
 	changed chan struct{}
 }
 
+// OnChange When the configuration file changes, the service will be listened again
 func (httpServer *HTTPServer) OnChange(viper *viper.Viper) {
 	httpServer.rw.Lock()
 	_ = viper.Unmarshal(httpServer)
@@ -45,17 +47,19 @@ func (httpServer *HTTPServer) OnChange(viper *viper.Viper) {
 	httpServer.changed <- struct{}{}
 }
 
+// NewHTTPServer simply initialize the HTTP server
 func NewHTTPServer(logger ILogger) *HTTPServer {
 	var s = &HTTPServer{
 		logger:   logger,
 		handlers: make([]func(router *gin.Engine), 0),
-		changed: make(chan struct{}),
+		changed:  make(chan struct{}),
 	}
 
 	go s.do()
 	return s
 }
 
+// Handler use this method to register the handler of gin
 func (httpServer *HTTPServer) Handler(handler func(router *gin.Engine)) {
 	httpServer.rw.Lock()
 	defer httpServer.rw.Unlock()
@@ -70,14 +74,24 @@ func (httpServer *HTTPServer) shutdownDuration() time.Duration {
 	return duration
 }
 
+// PidSavePath get pid save path
 func (httpServer *HTTPServer) PidSavePath() string {
 	return httpServer.PID
 }
 
+// Name get service name
 func (httpServer *HTTPServer) Name() string {
 	return httpServer.ServiceName
 }
 
+// SetLogger set custom logger
+func (httpServer *HTTPServer) SetLogger(logger ILogger) {
+	httpServer.rw.Lock()
+	defer httpServer.rw.Unlock()
+	httpServer.logger = logger
+}
+
+// Run start server listen, In fact, it is directly called globally daemon.Run() is an effect
 func (httpServer *HTTPServer) Run() {
 	if rs := daemon.Run(); rs != nil {
 		httpServer.logger.Fatalln(rs)
@@ -109,11 +123,13 @@ func (httpServer *HTTPServer) do() {
 	}
 }
 
+// Start daemon start handle
 func (httpServer *HTTPServer) Start() {
 	httpServer.logger.Info(fmt.Sprintf("server starting, listen: %s", httpServer.Addr))
 	httpServer.handler.Print(httpServer.logger)
 }
 
+// Stop daemon  stop handler
 func (httpServer *HTTPServer) Stop() error {
 	httpServer.rw.Lock()
 	defer httpServer.rw.Unlock()
@@ -128,12 +144,13 @@ func (httpServer *HTTPServer) Stop() error {
 	return err
 }
 
+// Restart daemon restart
 func (httpServer *HTTPServer) Restart() error {
 	httpServer.logger.Info(fmt.Sprintf("service [%s] restarting", httpServer.ServiceName))
 	return httpServer.Stop()
 }
 
-// 自定义的GIN日志处理中间件
+// GINLogger 自定义的GIN日志处理中间件
 func (httpServer *HTTPServer) GINLogger(ctx *gin.Context) {
 	start := time.Now()
 	Metrics.HTTPRequestURICounter(ctx.Request.URL.Path)
@@ -179,6 +196,7 @@ func (httpServer *HTTPServer) GINLogger(ctx *gin.Context) {
 	httpServer.logger.WithFields(params).Info(ctx.Request.URL.String())
 }
 
+// GINRecovery gin recovery handler
 func (httpServer *HTTPServer) GINRecovery(ctx *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {

@@ -9,6 +9,7 @@ import (
 	"sync"
 )
 
+// Dictionary ...
 type Dictionary struct {
 	TypeMap sync.Map
 	sync.Once
@@ -16,9 +17,11 @@ type Dictionary struct {
 
 var (
 	dictionary = new(Dictionary)
-	Unknown    = "unknown"
+	// Unknown unknown file type
+	Unknown = "unknown"
 )
 
+// FileType according to the content of some files passed in, determine the type of files
 func FileType(fSrc []byte) string {
 	if fSrc == nil {
 		return "unknown"
@@ -30,6 +33,7 @@ func FileType(fSrc []byte) string {
 	return typ
 }
 
+// FileBytes pass in the absolute path of the file and return part of the file
 func FileBytes(filename string) []byte {
 	file, err := os.Open(filename)
 	if err != nil {

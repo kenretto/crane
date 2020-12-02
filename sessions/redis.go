@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// RedisStoreConfig redis config
 type RedisStoreConfig struct {
 	RedisType string `mapstructure:"redis_type"`
 
@@ -59,6 +60,7 @@ func (rsc RedisStoreConfig) parseDuration(s string) time.Duration {
 	return duration
 }
 
+// NewRedis get a storage operation instance of redis according to the configuration information
 func (rsc RedisStoreConfig) NewRedis() redis.Cmdable {
 	var r redis.Cmdable
 	switch rsc.RedisType {

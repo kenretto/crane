@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// CSRFToken csrf token
 type CSRFToken struct {
 	Domain     string `mapstructure:"domain"`
 	Length     int    `mapstructure:"length"`
@@ -29,6 +30,7 @@ func (c CSRFToken) duration() time.Duration {
 	return d
 }
 
+// Token get token
 func (c CSRFToken) Token() string {
 	rand.Seed(time.Now().UnixNano())
 	var token = make([]byte, c.Length)
@@ -39,6 +41,7 @@ func (c CSRFToken) Token() string {
 	return base64.URLEncoding.EncodeToString(token)
 }
 
+// Valid csrf token valid
 func (c CSRFToken) Valid(ctx *gin.Context) error {
 	token, err := ctx.Cookie(c.SessionKey)
 	if err != nil || token == "" {
@@ -51,6 +54,7 @@ func (c CSRFToken) Valid(ctx *gin.Context) error {
 	return nil
 }
 
+// Handler gin middleware
 func (c CSRFToken) Handler(ctx *gin.Context) {
 	switch ctx.Request.Method {
 	case http.MethodGet:

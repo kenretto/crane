@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// Sessions session related function processing
 type Sessions struct {
 	Driver           string           `mapstructure:"driver"`
 	RedisStoreConfig RedisStoreConfig `mapstructure:"redis"`
@@ -18,13 +19,14 @@ type Sessions struct {
 	Name             string           `mapstructure:"name"`
 	Domain           string           `mapstructure:"domain"`
 	MaxAge           string           `mapstructure:"max_age"`
-	HttpOnly         bool             `mapstructure:"http_only"`
+	HTTPOnly         bool             `mapstructure:"http_only"`
 
 	store sessions.Store
 	conn  redis.Cmdable `mapstructure:"redis"`
 	mu    sync.RWMutex
 }
 
+// OnChange reinitialize when configuration file changes
 func (s *Sessions) OnChange(viper *viper.Viper) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -40,15 +42,15 @@ func (s *Sessions) OnChange(viper *viper.Viper) {
 	if err != nil {
 		panic(err)
 	}
-	s.store.Options(sessions.Options{MaxAge: int(duration / time.Second), Path: "/", Domain: s.Domain, HttpOnly: s.HttpOnly})
+	s.store.Options(sessions.Options{MaxAge: int(duration / time.Second), Path: "/", Domain: s.Domain, HttpOnly: s.HTTPOnly})
 }
 
-// Inject 启动session服务, 在自定义的路由代码中调用, 传入 *gin.Engine 对象
+// Inject start the session service, call it in the custom routing code, and import it. *gin.Engine  object
 func (s *Sessions) Inject(engine *gin.Engine) gin.IRoutes {
 	return engine.Use(sessions.Sessions(s.Name, s.store))
 }
 
-// Get 获取指定session
+// Get gets the specified session
 func Get(c *gin.Context, key string) string {
 	sess := sessions.Default(c)
 	val := sess.Get(key)
@@ -58,14 +60,14 @@ func Get(c *gin.Context, key string) string {
 	return ""
 }
 
-// Set 设置session
+// Set set session
 func Set(c *gin.Context, key, val string) {
 	sess := sessions.Default(c)
 	sess.Set(key, val)
 	_ = sess.Save()
 }
 
-// Del 删除指定session
+// Del delete the specified session
 func Del(c *gin.Context, key string) {
 	sess := sessions.Default(c)
 	sess.Delete(key)

@@ -7,55 +7,62 @@ import (
 )
 
 var (
-	Success          = &Response{Code: 2000, Message: "success"}
+	// Success success response
+	Success = &Response{Code: 2000, Message: "success"}
+	// PermissionDenied permission denied response
 	PermissionDenied = &Response{Code: 4003, Message: "permission denied"}
-	NotFound         = &Response{Code: 4004, Message: "not found"}
-	ManyRequest      = &Response{Code: 4429, Message: "too many requests"}
-	Failed           = &Response{Code: 5000, Message: "failed"}
-	AuthFail         = &Response{Code: 4001, Message: "auth failed"}
+	// NotFound not found response
+	NotFound = &Response{Code: 4004, Message: "not found"}
+	// ManyRequest many request response
+	ManyRequest = &Response{Code: 4429, Message: "too many requests"}
+	// Failed failed response
+	Failed = &Response{Code: 5000, Message: "failed"}
+	// AuthFail auth fail response
+	AuthFail = &Response{Code: 4001, Message: "auth failed"}
 )
 
 var (
-	// 翻译
+	// translator
 	translate *i18n.Bundle
 )
 
-// SetTranslator 设置翻译对象
+// SetTranslator set translation object
 func SetTranslator(t *i18n.Bundle) {
 	translate = t
 }
 
-// Translator 翻译, 通过分析 AcceptLanguage 来获取用户接受的语言
+// Translator The language accepted by users can be obtained by analyzing AcceptLanguages
 func Translator(ctx *gin.Context) *i18n.Printer {
 	return translate.NewPrinter(i18n.GetAcceptLanguages(ctx)...)
 }
 
-// Response HTTP返回数据结构体, 可使用这个, 也可以自定义
+// Response HTTP return the data structure. You can use this or customize it
 type Response struct {
-	Code    int         `json:"code"`    // 状态码,这个状态码是与前端和APP约定的状态码,非HTTP状态码
-	Data    interface{} `json:"data"`    // 返回数据
-	Message string      `json:"message"` // 自定义返回的消息内容
-	msgData interface{} // 消息解析使用的数据
+	Code    int         `json:"code"`    // the status code is the status code agreed with the front end and app, not the HTTP status code
+	Data    interface{} `json:"data"`    // return data
+	Message string      `json:"message"` // customize the returned message content
+	msgData interface{} // data used for message parsing
 }
 
+// JSON set Data, will return json
 func (rsp *Response) JSON(data interface{}) *Response {
 	rsp.Data = data
 	return rsp
 }
 
-// Msg msg 描述
+// Msg msg description
 func (rsp *Response) Msg(msg string) *Response {
 	rsp.Message = msg
 	return rsp
 }
 
-// MsgData 消息解析使用的数据
+// MsgData data used for message parsing
 func (rsp *Response) MsgData(data interface{}) *Response {
 	rsp.msgData = data
 	return rsp
 }
 
-// End 在调用了这个方法之后,还是需要 return 的
+// End after calling this method, you still need return
 func (rsp *Response) End(c *gin.Context, httpStatus ...int) {
 	status := http.StatusOK
 	if len(httpStatus) > 0 {
@@ -73,15 +80,15 @@ func (rsp *Response) End(c *gin.Context, httpStatus ...int) {
 	c.JSON(status, rsp)
 }
 
-// Object 直接获得本对象
+// Object get the object directly
 func (rsp *Response) Object(_ *gin.Context) *Response {
 	return rsp
 }
 
-// NewResponse 接口返回统一使用这个
-//  code 服务端与客户端和web端约定的自定义状态码
-//  data 具体的返回数据
-//  message 可不传,自定义消息
+// NewResponse response
+//  code custom status code agreed by server, client and Web
+//  data specific return data
+//  message can not be transmitted, custom message
 func NewResponse(code int, data interface{}, message ...string) *Response {
 	msg := ""
 	if len(message) > 0 {

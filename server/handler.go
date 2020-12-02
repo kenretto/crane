@@ -10,20 +10,20 @@ type debugPrintRouteInfo struct {
 	numHandlers    int
 }
 
-// Handler 路由
+// Handler router
 type Handler struct {
 	router              *gin.Engine
 	debugPrintRouteInfo []debugPrintRouteInfo
 }
 
-// Register 注册路由
+// Register register handler
 func (handler *Handler) Register(handlers ...func(router *gin.Engine)) {
 	for _, f := range handlers {
 		f(handler.router)
 	}
 }
 
-// Group 路由分组
+// Group router group
 func (*Handler) Group(relativePath string, handlers ...func(router gin.IRouter)) func(router gin.IRouter) {
 	return func(router gin.IRouter) {
 		var group = router.Group(relativePath)
@@ -33,7 +33,7 @@ func (*Handler) Group(relativePath string, handlers ...func(router gin.IRouter))
 	}
 }
 
-// NewHandler 初始化 handler
+// NewHandler init handler
 func NewHandler(mode string, recovery, ginLogger gin.HandlerFunc) *Handler {
 	gin.SetMode(mode)
 	var handler = &Handler{
@@ -53,12 +53,14 @@ func NewHandler(mode string, recovery, ginLogger gin.HandlerFunc) *Handler {
 	return handler
 }
 
+// Print print route info
 func (handler *Handler) Print(l ILogger) {
 	for _, info := range handler.router.Routes() {
 		l.Println(info.Method + strings.Repeat(" ", 12-len(info.Method)) + info.Path)
 	}
 }
 
+// Router get *gin.Engine
 func (handler *Handler) Router() *gin.Engine {
 	return handler.router
 }

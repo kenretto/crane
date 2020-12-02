@@ -6,8 +6,10 @@ import (
 	"strings"
 )
 
+// Fields other info
 type Fields map[string]interface{}
 
+// ILogger methods to be implemented for loggers injected into HTTPServer
 type ILogger interface {
 	Println(args ...interface{})
 	Error(args ...interface{})
@@ -16,14 +18,17 @@ type ILogger interface {
 	WithFields(fields Fields) ILogger
 }
 
+// DefaultLogger default logger
 type DefaultLogger struct {
 	args Fields
 }
 
+// NewDefaultLogger default logger
 func NewDefaultLogger(args Fields) *DefaultLogger {
 	return &DefaultLogger{args: args}
 }
 
+// Println println...
 func (d *DefaultLogger) Println(args ...interface{}) {
 	var b strings.Builder
 	for key, value := range d.args {
@@ -35,6 +40,7 @@ func (d *DefaultLogger) Println(args ...interface{}) {
 	log.Println(msg...)
 }
 
+// Error error...
 func (d *DefaultLogger) Error(args ...interface{}) {
 	var b strings.Builder
 	for key, value := range d.args {
@@ -46,6 +52,7 @@ func (d *DefaultLogger) Error(args ...interface{}) {
 	log.Println(msg...)
 }
 
+// Info info...
 func (d *DefaultLogger) Info(args ...interface{}) {
 	var b strings.Builder
 	for key, value := range d.args {
@@ -57,6 +64,7 @@ func (d *DefaultLogger) Info(args ...interface{}) {
 	log.Println(msg...)
 }
 
+// Fatalln fatalln
 func (d *DefaultLogger) Fatalln(args ...interface{}) {
 	var b strings.Builder
 	for key, value := range d.args {
@@ -68,6 +76,7 @@ func (d *DefaultLogger) Fatalln(args ...interface{}) {
 	log.Fatalln(msg...)
 }
 
+// WithFields Set other information to be recorded in the log, and a new object will be returned
 func (d DefaultLogger) WithFields(fields Fields) ILogger {
 	var logger = NewDefaultLogger(make(Fields))
 	for key, value := range fields {

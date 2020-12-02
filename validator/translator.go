@@ -19,12 +19,13 @@ import (
 	"github.com/go-playground/validator/v10/translations/zh"
 )
 
+// Translation translation interface
 type Translation interface {
 	locales.Translator
 	RegisterDefaultTranslations(v *validator.Validate, trans ut.Translator) (err error)
 }
 
-// Translator 对 github.com/go-playground/locales 的一层封装
+// Translator one-layer encapsulation of github.com/go-playground/locales
 type Translator struct {
 	locales.Translator
 }

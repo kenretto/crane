@@ -28,7 +28,7 @@ func (s *RedisStore) Set(id string, value string) {
 	}
 }
 
-// store driver method
+// Get store driver method
 func (s *RedisStore) Get(id string, clear bool) string {
 	val, err := s.r.Get(context.Background(), fmt.Sprintf("catpcha_id_%s", id)).Result()
 	if err != nil {
@@ -102,6 +102,7 @@ func (config StoreConfig) parseDuration(s string) time.Duration {
 	return duration
 }
 
+// NewStore get the specified redis store according to the configuration information
 func (config StoreConfig) NewStore() *RedisStore {
 	var store = new(RedisStore)
 	switch config.RedisType {

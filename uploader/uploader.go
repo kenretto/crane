@@ -20,19 +20,19 @@ type DefaultSaveHandler struct {
 	context *gin.Context
 }
 
-// SetDst 设置保存位置
+// SetDst set save file dir
 func (defaultSaveHandler *DefaultSaveHandler) SetDst(dst string) *DefaultSaveHandler {
 	defaultSaveHandler.dst = dst
 	return defaultSaveHandler
 }
 
-// SetPrefix 设置前缀
+// SetPrefix set save file prefix
 func (defaultSaveHandler *DefaultSaveHandler) SetPrefix(prefix string) *DefaultSaveHandler {
 	defaultSaveHandler.prefix = prefix
 	return defaultSaveHandler
 }
 
-// Save 保存
+// Save save
 func (defaultSaveHandler *DefaultSaveHandler) Save(file *multipart.FileHeader, fileName string) (string, error) {
 	filePath := defaultSaveHandler.dst + defaultSaveHandler.prefix + fileName
 	err := defaultSaveHandler.context.SaveUploadedFile(file, filePath)
@@ -43,6 +43,7 @@ func (defaultSaveHandler *DefaultSaveHandler) Save(file *multipart.FileHeader, f
 	return filePath, err
 }
 
+// Uploader file upload function
 type Uploader struct {
 	FormKey      string
 	SaveHandler  SaveHandler
@@ -51,6 +52,7 @@ type Uploader struct {
 	Ctx          *gin.Context
 }
 
+// TypeValid valid file type
 func (u *Uploader) TypeValid(file *multipart.FileHeader) error {
 	for _, typ := range u.AllowedTypes {
 		f, err := file.Open()
@@ -67,6 +69,7 @@ func (u *Uploader) TypeValid(file *multipart.FileHeader) error {
 	return errors.New("file type not allowed")
 }
 
+// Save save file
 func (u *Uploader) Save(index int, file *multipart.FileHeader) (filename string, err error) {
 	err = u.TypeValid(file)
 	if err != nil {
@@ -76,6 +79,7 @@ func (u *Uploader) Save(index int, file *multipart.FileHeader) (filename string,
 	return
 }
 
+// Files get all uploaded files
 func (u *Uploader) Files() []*multipart.FileHeader {
 	form, err := u.Ctx.MultipartForm()
 	if err != nil {
@@ -85,6 +89,7 @@ func (u *Uploader) Files() []*multipart.FileHeader {
 	return files
 }
 
+// Each perform traversal processing operations on uploaded files
 func (u *Uploader) Each(fn func(index int, file *multipart.FileHeader) error) error {
 	for i, header := range u.Files() {
 		err := fn(i, header)

@@ -5,10 +5,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Logger encapsulating logrus
 type Logger struct {
 	*logrus.Logger
 }
 
-func (logger *Logger) WithFields(fields server.Fields) server.ILogger  {
+// WithFields encapsulating logrus
+func (logger *Logger) WithFields(fields server.Fields) server.ILogger {
 	return &Logger{logger.Logger.WithFields(logrus.Fields(fields)).Logger}
 }
