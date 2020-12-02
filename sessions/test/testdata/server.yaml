@@ -1,0 +1,21 @@
+server:
+  pid: testdata/
+  name: server_test
+  addr: 0.0.0.0:12349
+  shutdown_wait_duration: 30s
+  gin_mode: release
+
+session:
+  driver: redis
+  key: 123456
+  name: GOSID
+  domain: localhost
+  max_age: 2h
+  http_only: true
+  redis:
+    redis_type: default
+    addr: 127.0.0.1:6379
+    password:
+    db: 6
+    pool_size: 5000
+    min_idle_conns: 100

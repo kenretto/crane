@@ -1,0 +1,6 @@
+logger:
+  max_age: 720h
+  rotation_time: 1s
+  level: trace
+  path: testdata/
+  report_caller: true

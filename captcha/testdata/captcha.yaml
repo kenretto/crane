@@ -1,0 +1,17 @@
+captcha:
+  driver:
+    captcha_type: string
+    length: 6
+    height: 120
+    width: 400
+    noise_count: 10
+    show_line_options: 8
+    source: "qwertyupasfghjkmnbvcxz123456789"
+  store:
+    redis_type: default
+    addrs:
+      - 127.0.0.1:6379
+    password:
+    db: 5
+    pool_size: 5000
+    min_idle_conns: 100

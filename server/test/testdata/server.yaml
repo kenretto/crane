@@ -1,0 +1,6 @@
+server:
+  pid: testdata/
+  name: server_test
+  addr: 0.0.0.0:12349
+  shutdown_wait_duration: 30s
+  gin_mode: release

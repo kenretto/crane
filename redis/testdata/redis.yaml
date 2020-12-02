@@ -1,0 +1,7 @@
+redis:
+  redis_type: default
+  addr: 127.0.0.1:6379
+  password:
+  db: 5
+  pool_size: 5000
+  min_idle_conns: 100
