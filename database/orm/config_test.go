@@ -2,12 +2,13 @@ package orm
 
 import (
 	"github.com/kenretto/crane/configurator"
+	"github.com/sirupsen/logrus"
 	"testing"
 	"time"
 )
 
 func TestLoader_DB(t *testing.T) {
-	var loader = new(Loader)
+	var loader = NewORM(logrus.NewEntry(logrus.New()))
 	var c, err = configurator.NewConfigurator("testdata/database.yaml")
 	if err != nil {
 		t.Error(err)

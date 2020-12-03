@@ -42,11 +42,11 @@ func TestUploader_Uploader(t *testing.T) {
 	var b bytes.Buffer
 	writer := multipart.NewWriter(&b)
 
-	fw, err := writer.CreateFormFile("files", "testdata/afc6a3f40b8710341f17d2215b934c62_big.jpg")
+	fw, err := writer.CreateFormFile("files", "testdata/0B627A7A0A8F14F29D4E33246B637A3C.jpg")
 	if err != nil {
 		t.Error(err)
 	}
-	f, _ := os.Open("testdata/afc6a3f40b8710341f17d2215b934c62_big.jpg")
+	f, _ := os.Open("testdata/0B627A7A0A8F14F29D4E33246B637A3C.jpg")
 	_, _ = io.Copy(fw, f)
 
 	fw, err = writer.CreateFormFile("files", "testdata/0B627A7A0A8F14F29D4E33246B637A3C.jpg")
