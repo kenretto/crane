@@ -87,7 +87,7 @@ func (crane *Crane) IntegrationSession() {
 
 // IntegrationHTTPServer integration http server
 func (crane *Crane) IntegrationHTTPServer() {
-	crane.server = server.NewHTTPServer(&Logger{crane.logger.Instance()})
+	crane.server = server.NewHTTPServer(&Logger{logrus.NewEntry(crane.logger.Instance())})
 }
 
 func (crane *Crane) WithConfigurator(config string) error {

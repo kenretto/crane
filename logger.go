@@ -7,10 +7,10 @@ import (
 
 // Logger encapsulating logrus
 type Logger struct {
-	*logrus.Logger
+	*logrus.Entry
 }
 
 // WithFields encapsulating logrus
 func (logger *Logger) WithFields(fields server.Fields) server.ILogger {
-	return &Logger{logger.Logger.WithFields(logrus.Fields(fields)).Logger}
+	return &Logger{logger.Logger.WithFields(logrus.Fields(fields))}
 }

@@ -7,13 +7,13 @@ import (
 )
 
 var (
-	// Metrics 指标统计
+	// Metrics metrics
 	Metrics               Prometheus
 	responseStatusCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: "rrmine",
 			Name:      "response_status_counter",
-			Help:      "http 请求状态码计数",
+			Help:      "http status counter",
 		},
 		[]string{"status", "uri"},
 	)
@@ -21,7 +21,7 @@ var (
 		prometheus.CounterOpts{
 			Namespace: "rrmine",
 			Name:      "request_uri_counter",
-			Help:      "http 请求资源计数",
+			Help:      "http uri counter",
 		},
 		[]string{"uri"},
 	)
@@ -29,7 +29,7 @@ var (
 		prometheus.CounterOpts{
 			Namespace: "rrmine",
 			Name:      "request_panic_counter",
-			Help:      "http 请求崩溃统计",
+			Help:      "http panic counter",
 		},
 		[]string{"uri"},
 	)

@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/kenretto/crane/util/stack"
 	"github.com/kenretto/daemon"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"net"
@@ -25,6 +26,7 @@ type HTTPServer struct {
 	Addr                 string `mapstructure:"addr"`
 	ShutdownWaitDuration string `mapstructure:"shutdown_wait_duration"`
 	GinMode              string `mapstructure:"gin_mode"`
+	Metrics              string `mapstructure:"metrics"`
 
 	logger   ILogger
 	handlers []func(router *gin.Engine)
@@ -110,6 +112,13 @@ func (httpServer *HTTPServer) do() {
 		}
 		httpServer.rw.Lock()
 		var handler = NewHandler(httpServer.GinMode, httpServer.GINRecovery, httpServer.GINLogger)
+		if httpServer.Metrics != "" {
+			handler.Register(func(router *gin.Engine) {
+				router.GET(httpServer.Metrics, func(context *gin.Context) {
+					promhttp.Handler().ServeHTTP(context.Writer, context.Request)
+				})
+			})
+		}
 		handler.Register(httpServer.handlers...)
 		httpServer.handler = handler
 		httpServer.server = &http.Server{Handler: httpServer.handler.router, Addr: httpServer.Addr}
@@ -187,15 +196,15 @@ func (httpServer *HTTPServer) GINLogger(ctx *gin.Context) {
 	ctx.Next()
 
 	var params = make(Fields)
-	params["latency"] = time.Since(start)
+	params["latency"] = time.Since(start).String()
 	params["method"] = ctx.Request.Method
 	params["status"] = ctx.Writer.Status()
 	params["body_size"] = ctx.Writer.Size()
 	params["body"] = request
 	params["client_ip"] = ctx.ClientIP()
 	params["user_agent"] = ctx.Request.UserAgent()
-	params["log_type"] = "pkg.server.server"
 	params["keys"] = ctx.Keys
+	params["headers"] = ctx.Request.Header
 	Metrics.HTTPResponseStatusCounter(ctx.Request.URL.Path, ctx.Writer.Status())
 	httpServer.logger.WithFields(params).Info(ctx.Request.URL.String())
 }
@@ -214,7 +223,7 @@ func (httpServer *HTTPServer) GINRecovery(ctx *gin.Context) {
 				}
 			}
 			printStack := stack.Stack(3)
-			httpRequest, _ := httputil.DumpRequest(ctx.Request, false)
+			httpRequest, _ := httputil.DumpRequest(ctx.Request, true)
 
 			if gin.Mode() != gin.ReleaseMode {
 				httpServer.logger.Error(string(httpRequest))

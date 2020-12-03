@@ -5,8 +5,9 @@
         <meta charset="UTF-8">
         <title>CRANE</title>
     </head>
-    <body>
-    <ul>
+    <body style="text-align: center">
+    <h2><a href="https://github.com/kenretto/crane">Crane</a></h2>
+    <ul style="list-style: none">
         {{ range $url, $name := .links}}
             <li><a href="{{$url}}">{{$name}}</a></li>
         {{end}}
