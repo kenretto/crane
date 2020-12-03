@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"fmt"
@@ -19,7 +20,9 @@ import (
 	"github.com/kenretto/crudman/driver"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
+	"io/ioutil"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -142,16 +145,22 @@ func main() {
 			response.Success.End(ctx)
 		})
 		var crud = crudman.New()
-		crud.Register(driver.NewGorm(pilot.ORM(), "ID"), member{}, crudman.SetRoute("/member"))
-		driver.SetValidator(func(obj interface{}) interface{} {
+
+		crud.Register(driver.NewGorm(pilot.ORM(), "ID").WithValidator(func(obj interface{}) interface{} {
 			return validate.ValidateStruct(obj)
-		})
+		}), member{}, crudman.SetRoute("/member"))
 		response.SetTranslator(i18n.NewBundle(language.Chinese).LoadFiles("testdata/i18n/", "yaml", yaml.Unmarshal))
 		s.Any("/crud/*any", func(context *gin.Context) {
 			context.Request.URL.Path = strings.ReplaceAll(context.Request.URL.Path, "/crud", "")
+			context.Request.Body = ioutil.NopCloser(bytes.NewBuffer(context.MustGet(gin.BodyBytesKey).([]byte)))
 			data, err := crud.Handler(context.Writer, context.Request)
 			if err != nil {
-				response.Failed.Msg(err.Error()).End(context)
+				fmt.Println(reflect.TypeOf(data))
+				if e, ok := data.(validator.ValidationErrors); ok {
+					response.Failed.JSON(e.Translate()).End(context)
+				} else {
+					response.Failed.Msg(err.Error()).End(context)
+				}
 				return
 			}
 
