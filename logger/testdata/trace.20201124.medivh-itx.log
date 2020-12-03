@@ -1,2 +1,0 @@
-{"file":"E:/projects/crane/logger/logger_test.go:18","func":"github.com/kenretto/crane/logger.TestLogger_Instance","level":"trace","msg":"this is trace message","time":"2020-11-24T16:56:02+08:00"}
-{"file":"E:/projects/crane/logger/logger_test.go:18","func":"github.com/kenretto/crane/logger.TestLogger_Instance","level":"trace","msg":"this is trace message","time":"2020-11-24T16:59:37+08:00"}
