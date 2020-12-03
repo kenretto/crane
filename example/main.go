@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
 	"encoding/base64"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/zh"
+	redis2 "github.com/go-redis/redis/v8"
 	"github.com/kenretto/crane"
 	"github.com/kenretto/crane/i18n"
+	"github.com/kenretto/crane/redis"
 	"github.com/kenretto/crane/response"
 	"github.com/kenretto/crane/sessions"
 	"github.com/kenretto/crane/validator"
@@ -31,6 +35,43 @@ type member struct {
 
 func (member) TableName() string {
 	return "user"
+}
+
+type MyCrane struct {
+	crane.Crane
+
+	MyRedis *redis.Redis
+}
+
+func (my *MyCrane) IntegrationRedis() {
+	my.MyRedis = new(redis.Redis)
+	my.MyRedis.Config.OnConnect = func(ctx context.Context, cn *redis2.Conn) error {
+		fmt.Println("hello, redis")
+		return nil
+	}
+	my.Configurator.Add("redis", my.MyRedis)
+}
+
+// Redis get redis
+func (my *MyCrane) Redis() *redis.Redis {
+	return my.MyRedis
+}
+
+func redisMain() {
+	var pilot = new(MyCrane)
+	err := crane.NewCraneWithCustom("application.yaml", pilot)
+	if err != nil {
+		panic(err)
+	}
+	pilot.Handler(func(router *gin.Engine) {
+		router.GET("/redis/set", func(context *gin.Context) {
+			pilot.Redis().Instance().Set(context, "redis", "yes", 0)
+		})
+		router.GET("/redis/get", func(context *gin.Context) {
+			context.String(http.StatusOK, pilot.Redis().Instance().Get(context, "redis").String())
+		})
+	})
+	pilot.Run()
 }
 
 func main() {
