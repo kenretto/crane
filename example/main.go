@@ -74,6 +74,10 @@ func redisMain() {
 	pilot.Run()
 }
 
+func TestController(ctx *gin.Context) {
+	ctx.String(http.StatusOK, "ok")
+}
+
 func main() {
 	var pilot, err = crane.NewCrane("application.yaml")
 	if err != nil {

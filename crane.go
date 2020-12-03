@@ -28,6 +28,7 @@ type ICrane interface {
 	ORM(db ...string) *gorm.DB
 	Logger() *logrus.Logger
 	Handler(handler func(router *gin.Engine))
+	Server() *server.HTTPServer
 	Run()
 	Sessions() *sessions.Sessions
 	Redis() *redis.Redis
@@ -98,7 +99,7 @@ func (crane *Crane) WithConfigurator(config string) error {
 // NewCrane 子目录的每个库其实都是可以单独使用的, 如果想要整个依赖, 建议使用这个方法来初始化
 func NewCrane(config string) (crane ICrane, err error) {
 	crane = new(Crane)
-	err = new(Crane).WithConfigurator(config)
+	err = crane.WithConfigurator(config)
 	if err != nil {
 		return
 	}
@@ -147,6 +148,10 @@ func (crane *Crane) Logger() *logrus.Logger {
 // Handler set handler
 func (crane *Crane) Handler(handler func(router *gin.Engine)) {
 	crane.server.Handler(handler)
+}
+
+func (crane *Crane) Server() *server.HTTPServer {
+	return crane.server
 }
 
 // Run start service

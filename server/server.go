@@ -66,6 +66,10 @@ func (httpServer *HTTPServer) Handler(handler func(router *gin.Engine)) {
 	httpServer.handlers = append(httpServer.handlers, handler)
 }
 
+func (httpServer *HTTPServer) Router() *gin.Engine {
+	return httpServer.handler.router
+}
+
 func (httpServer *HTTPServer) shutdownDuration() time.Duration {
 	duration, err := time.ParseDuration(httpServer.ShutdownWaitDuration)
 	if err != nil {
