@@ -1,0 +1,16 @@
+{{ define "index"}}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>CRANE</title>
+    </head>
+    <body>
+    <ul>
+        {{ range $url, $name := .links}}
+            <li><a href="{{$url}}">{{$name}}</a></li>
+        {{end}}
+    </ul>
+    </body>
+    </html>
+{{end}}

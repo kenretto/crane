@@ -1,4 +1,0 @@
-"what's your problem":
-  description: "this is a examples"
-  default: "your response msg there should be at least one other field"
-  one: "{{.name}} support text template"
