@@ -23,8 +23,6 @@ func TestLoader(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log(b64s)
-	t.Log(strings.ReplaceAll(b64s, "data:image/png;base64,", ""))
 	data, err := base64.StdEncoding.DecodeString(strings.ReplaceAll(b64s, "data:image/png;base64,", ""))
 	if err != nil {
 		t.Error(err)
@@ -61,8 +59,7 @@ func TestImplLoader(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log(b64s)
-	t.Log(strings.ReplaceAll(b64s, "data:image/png;base64,", ""))
+
 	data, err := base64.StdEncoding.DecodeString(strings.ReplaceAll(b64s, "data:image/png;base64,", ""))
 	if err != nil {
 		t.Error(err)

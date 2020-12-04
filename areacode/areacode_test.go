@@ -11,6 +11,8 @@ func TestGetLocalTimeByCode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Log(localTime)
+	t.Log(time.Date(2020, time.August, 18, 14, 0, 00, 0, l).Unix())
 
 	if localTime-time.Date(2020, time.August, 18, 14, 0, 00, 0, l).Unix() != -3600 {
 		t.Errorf("time error: localTime=%d", localTime)

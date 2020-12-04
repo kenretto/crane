@@ -13,6 +13,7 @@ import (
 	"github.com/kenretto/crane/sessions"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+	"sync"
 )
 
 type ICrane interface {
@@ -47,6 +48,29 @@ type Crane struct {
 	redis        *redis.Redis
 	server       *server.HTTPServer
 	sessions     *sessions.Sessions
+
+	container map[string]configurator.IConfig
+	mu        sync.RWMutex
+}
+
+// Integration integration custom
+//  The function of configurator.IConfig is implemented and the configuration can be loaded here, Then you can choose to manage the life cycle of the incoming object,
+//  You can also use Crane.Get to get the specified object,
+//  All objects that have been configured by this method will be saved
+func (crane *Crane) Integration(node string, bind configurator.IConfig) {
+	crane.mu.Lock()
+	defer crane.mu.Unlock()
+	if crane.container == nil {
+		crane.container = make(map[string]configurator.IConfig)
+	}
+	crane.container[node] = bind
+	crane.Configurator.Add(node, crane.container[node])
+}
+
+func (crane *Crane) Get(node string) configurator.IConfig {
+	crane.mu.RLock()
+	defer crane.mu.RUnlock()
+	return crane.container[node]
 }
 
 // IntegrationLogger integration logger

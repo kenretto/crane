@@ -16,10 +16,8 @@ func TestDo(t *testing.T) {
 		t.Error(err)
 	}
 
-	body, err := ioutil.ReadAll(response.Body)
+	_, err = ioutil.ReadAll(response.Body)
 	if err != nil {
 		t.Error(err)
 	}
-
-	t.Log(string(body))
 }
