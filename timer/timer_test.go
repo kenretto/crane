@@ -4,7 +4,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"log"
 	"testing"
-	"time"
 )
 
 type PrintHello struct {
@@ -53,14 +52,11 @@ func TestNewTimer(t *testing.T) {
 	}
 
 	timer.Run()
-	time.Sleep(12 * time.Second)
 
 	t.Log(timer.Tasks().GetJob("print_hello").EntryID)
 	t.Log(timer.Tasks().GetJob("print_hello").Name)
 
 	timer.Tasks().Pause("print_hello")
-	time.Sleep(10 * time.Second)
 
 	timer.Tasks().Start("print_hello")
-	time.Sleep(10 * time.Second)
 }
