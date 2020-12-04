@@ -1,7 +1,11 @@
 package server
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	"reflect"
+	"runtime"
 	"strings"
 )
 
@@ -54,9 +58,24 @@ func NewHandler(mode string, recovery, ginLogger gin.HandlerFunc) *Handler {
 }
 
 // Print print route info
-func (handler *Handler) Print(l ILogger) {
+func (handler *Handler) Print() {
+	var logger = logrus.New()
+	logger.SetFormatter(&logrus.TextFormatter{
+		ForceColors:  true,
+		DisableQuote: true,
+	})
+
+	var handlerMaxLength = 0
 	for _, info := range handler.router.Routes() {
-		l.Println(info.Method + strings.Repeat(" ", 12-len(info.Method)) + info.Path)
+		if len(info.Handler) > handlerMaxLength {
+			handlerMaxLength = len(info.Handler)
+		}
+	}
+
+	for _, info := range handler.router.Routes() {
+		var file, line = runtime.FuncForPC(reflect.ValueOf(info.HandlerFunc).Pointer()).FileLine(reflect.ValueOf(info.HandlerFunc).Pointer())
+		logger.WithField("handler", info.Handler+strings.Repeat(" ", handlerMaxLength+4-len(info.Handler))+fmt.Sprintf("%s:%d", file, line)).
+			Println(info.Method + strings.Repeat(" ", 10-len(info.Method)) + info.Path)
 	}
 }
 

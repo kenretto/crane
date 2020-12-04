@@ -131,7 +131,7 @@ func (httpServer *HTTPServer) do() {
 				httpServer.logger.Error(fmt.Sprintf("service [%s] error: %v", httpServer.ServiceName, err))
 			}
 			httpServer.logger.Info(fmt.Sprintf("server starting, listen: %s", httpServer.Addr))
-			httpServer.handler.Print(httpServer.logger)
+			httpServer.handler.Print()
 		}()
 	}
 }
@@ -139,7 +139,7 @@ func (httpServer *HTTPServer) do() {
 // Start daemon start handle
 func (httpServer *HTTPServer) Start() {
 	httpServer.logger.Info(fmt.Sprintf("server starting, listen: %s", httpServer.Addr))
-	httpServer.handler.Print(httpServer.logger)
+	httpServer.handler.Print()
 }
 
 // Stop daemon  stop handler

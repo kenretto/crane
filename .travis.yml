@@ -10,5 +10,4 @@ before_install:
   - mysql -e 'CREATE DATABASE crane;'
 
 go:
-  - 1.14.x
   - 1.15.x
