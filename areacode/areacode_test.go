@@ -6,12 +6,13 @@ import (
 )
 
 func TestGetLocalTimeByCode(t *testing.T) {
+	var l, _ = time.LoadLocation("Asia/Shanghai")
 	var localTime, err = GetLocalTimeByCode(Filter{Code: 81}, "2020-08-18 14:00:00")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if localTime-time.Date(2020, time.August, 18, 14, 0, 00, 0, time.Local).Unix() != -3600 {
+	if localTime-time.Date(2020, time.August, 18, 14, 0, 00, 0, l).Unix() != -3600 {
 		t.Errorf("time error: localTime=%d", localTime)
 	}
 
