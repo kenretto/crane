@@ -11,7 +11,7 @@ func TestDo(t *testing.T) {
 	l := logrus.New()
 	logrus.SetReportCaller(true)
 	logger = l.WithField("filter", "pkg.util.request.test")
-	response, err := URL("http://api.rrmine.com/").ContentType("application/json").Parameters(url.Values{"nickname": []string{"wang"}}).Body([]byte(`{"hello": "world"}`)).Do()
+	response, err := URL("http://www.baidu.com/").ContentType("application/json").Parameters(url.Values{"nickname": []string{"wang"}}).Body([]byte(`{"hello": "world"}`)).Do()
 	if err != nil {
 		t.Error(err)
 	}

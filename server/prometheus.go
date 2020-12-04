@@ -11,7 +11,7 @@ var (
 	Metrics               Prometheus
 	responseStatusCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: "rrmine",
+			Namespace: "crane",
 			Name:      "response_status_counter",
 			Help:      "http status counter",
 		},
@@ -19,7 +19,7 @@ var (
 	)
 	requestURICounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: "rrmine",
+			Namespace: "crane",
 			Name:      "request_uri_counter",
 			Help:      "http uri counter",
 		},
@@ -27,7 +27,7 @@ var (
 	)
 	panicCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: "rrmine",
+			Namespace: "crane",
 			Name:      "request_panic_counter",
 			Help:      "http panic counter",
 		},
