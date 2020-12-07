@@ -1,4 +1,7 @@
-## Crane
+## Crane 
+
+[![Build Status](https://travis-ci.org/kenretto/crane.svg?branch=master&status=created)](https://github.com/kenretto/crane)
+
 Configurable integration tool
 
 
