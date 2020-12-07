@@ -33,6 +33,10 @@ type Loader struct {
 	conns  map[string]*gorm.DB
 }
 
+func (loader *Loader) Node() string {
+	return "database"
+}
+
 // NewORM new orm
 func NewORM(logger *logrus.Entry) *Loader {
 	loader := new(Loader)

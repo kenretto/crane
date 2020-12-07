@@ -11,8 +11,11 @@ import (
 	"github.com/kenretto/crane/redis"
 	"github.com/kenretto/crane/server"
 	"github.com/kenretto/crane/sessions"
+	"github.com/kenretto/daemon"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
+	"log"
 	"sync"
 )
 
@@ -24,6 +27,8 @@ type ICrane interface {
 	IntegrationRedis()
 	IntegrationSession()
 	IntegrationHTTPServer()
+	Integration(bind configurator.IConfig)
+	Get(node string) configurator.IConfig
 	WithConfigurator(config string) error
 	Captcha() *captcha.Captcha
 	ORM(db ...string) *gorm.DB
@@ -49,22 +54,56 @@ type Crane struct {
 	server       *server.HTTPServer
 	sessions     *sessions.Sessions
 
+	PIDSavePath string
+	ServiceName string
+
 	container map[string]configurator.IConfig
 	mu        sync.RWMutex
+}
+
+func (crane *Crane) Node() string {
+	return "server"
+}
+
+func (crane *Crane) OnChange(viper *viper.Viper) {
+	crane.PIDSavePath = viper.GetString("pid")
+	crane.ServiceName = viper.GetString("name")
+}
+
+func (crane *Crane) PidSavePath() string {
+	return crane.PIDSavePath
+}
+
+func (crane *Crane) Name() string {
+	return crane.ServiceName
+}
+
+func (crane *Crane) Start() {
+	crane.Configurator.Add(crane.server)
+	crane.server.Listen()
+}
+
+func (crane *Crane) Stop() error {
+	crane.server.Stop()
+	return nil
+}
+
+func (crane *Crane) Restart() error {
+	return crane.Stop()
 }
 
 // Integration integration custom
 //  The function of configurator.IConfig is implemented and the configuration can be loaded here, Then you can choose to manage the life cycle of the incoming object,
 //  You can also use Crane.Get to get the specified object,
 //  All objects that have been configured by this method will be saved
-func (crane *Crane) Integration(node string, bind configurator.IConfig) {
+func (crane *Crane) Integration(bind configurator.IConfig) {
 	crane.mu.Lock()
 	defer crane.mu.Unlock()
 	if crane.container == nil {
 		crane.container = make(map[string]configurator.IConfig)
 	}
-	crane.container[node] = bind
-	crane.Configurator.Add(node, crane.container[node])
+	crane.container[bind.Node()] = bind
+	crane.Configurator.Add(crane.container[bind.Node()])
 }
 
 func (crane *Crane) Get(node string) configurator.IConfig {
@@ -76,37 +115,37 @@ func (crane *Crane) Get(node string) configurator.IConfig {
 // IntegrationLogger integration logger
 func (crane *Crane) IntegrationLogger() {
 	crane.logger = new(logger.Logger)
-	crane.Configurator.Add("logger", crane.logger)
+	crane.Configurator.Add(crane.logger)
 }
 
 // IntegrationCaptcha integration captcha
 func (crane *Crane) IntegrationCaptcha() {
 	crane.captcha = captcha.NewCaptcha()
-	crane.Configurator.Add("captcha", crane.captcha)
+	crane.Configurator.Add(crane.captcha)
 }
 
 // IntegrationORM integration gorm
 func (crane *Crane) IntegrationORM() {
 	crane.orm = orm.NewORM(logrus.NewEntry(crane.logger.Instance()))
-	crane.Configurator.Add("database", crane.orm)
+	crane.Configurator.Add(crane.orm)
 }
 
 // IntegrationPassword integration password
 func (crane *Crane) IntegrationPassword() {
 	crane.password = new(password.Password)
-	crane.Configurator.Add("password", crane.password)
+	crane.Configurator.Add(crane.password)
 }
 
 // IntegrationRedis integration redis
 func (crane *Crane) IntegrationRedis() {
 	crane.redis = new(redis.Redis)
-	crane.Configurator.Add("redis", crane.redis)
+	crane.Configurator.Add(crane.redis)
 }
 
 // IntegrationSession integration session
 func (crane *Crane) IntegrationSession() {
 	crane.sessions = new(sessions.Sessions)
-	crane.Configurator.Add("sessions", crane.sessions)
+	crane.Configurator.Add(crane.sessions)
 }
 
 // IntegrationHTTPServer integration http server
@@ -117,6 +156,7 @@ func (crane *Crane) IntegrationHTTPServer() {
 func (crane *Crane) WithConfigurator(config string) error {
 	var err error
 	crane.Configurator, err = configurator.NewConfigurator(config)
+	crane.Configurator.Add(crane)
 	return err
 }
 
@@ -135,6 +175,7 @@ func NewCrane(config string) (crane ICrane, err error) {
 	crane.IntegrationPassword()
 	crane.IntegrationSession()
 	crane.IntegrationHTTPServer()
+	daemon.Register(daemon.NewProcess(crane.(*Crane)))
 	return
 }
 
@@ -151,6 +192,9 @@ func NewCraneWithCustom(config string, crane ICrane) error {
 	crane.IntegrationPassword()
 	crane.IntegrationSession()
 	crane.IntegrationHTTPServer()
+	if c, ok := crane.(*Crane); ok {
+		daemon.Register(daemon.NewProcess(c))
+	}
 	return nil
 }
 
@@ -180,8 +224,10 @@ func (crane *Crane) Server() *server.HTTPServer {
 
 // Run start service
 func (crane *Crane) Run() {
-	crane.Configurator.Add("server", crane.server)
-	crane.server.Run()
+	err := daemon.Run()
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 // Sessions get sessions

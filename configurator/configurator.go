@@ -12,6 +12,7 @@ import (
 
 // IConfig Configurator interface
 type IConfig interface {
+	Node() string
 	OnChange(viper *viper.Viper)
 }
 
@@ -22,21 +23,21 @@ type Configurator struct {
 	viper *viper.Viper
 
 	mu    sync.Mutex
-	nodes map[string]IConfig
+	nodes []IConfig
 
 	configChangeInterval time.Time
 }
 
 func (config *Configurator) watch() {
 	config.viper.OnConfigChange(func(in fsnotify.Event) {
-		if time.Since(config.configChangeInterval) < time.Second {
-			return
-		}
-		config.configChangeInterval = time.Now()
 		switch in.Op {
 		case fsnotify.Write:
-			for name, iConfig := range config.nodes {
-				iConfig.OnChange(config.viper.Sub(name))
+			if time.Since(config.configChangeInterval) < time.Second {
+				return
+			}
+			config.configChangeInterval = time.Now()
+			for _, component := range config.nodes {
+				component.OnChange(config.viper.Sub(component.Node()))
 			}
 		}
 	})
@@ -44,11 +45,11 @@ func (config *Configurator) watch() {
 }
 
 // Add add a configuration node, and for each additional node, a top-level node with the same name as the node is required in the configuration file
-func (config *Configurator) Add(node string, impl IConfig) {
+func (config *Configurator) Add(impl IConfig) {
 	config.mu.Lock()
 	defer config.mu.Unlock()
-	config.nodes[node] = impl
-	config.nodes[node].OnChange(config.viper.Sub(node))
+	config.nodes = append(config.nodes, impl)
+	impl.OnChange(config.viper.Sub(impl.Node()))
 }
 
 // NewConfigurator new a configurator
@@ -73,7 +74,7 @@ func NewConfigurator(filename string) (*Configurator, error) {
 	if err != nil {
 		return nil, err
 	}
-	configuration.nodes = make(map[string]IConfig)
+	configuration.nodes = make([]IConfig, 0)
 	configuration.watch()
 	return configuration, nil
 }

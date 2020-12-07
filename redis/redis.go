@@ -19,6 +19,10 @@ type Redis struct {
 	rw sync.RWMutex
 }
 
+func (s *Redis) Node() string {
+	return "redis"
+}
+
 // Instance get redis instance
 func (s *Redis) Instance() redis.Cmdable {
 	s.rw.RLock()

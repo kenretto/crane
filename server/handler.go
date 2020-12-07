@@ -3,11 +3,26 @@ package server
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	"log"
+	"net/http"
+	"os"
 	"reflect"
 	"runtime"
+	"sort"
 	"strings"
 )
+
+var methodColor = map[string]string{
+	http.MethodGet:     "\033[0;32mGET\033[0m",
+	http.MethodHead:    "\033[0;34mHEAD\033[0m",
+	http.MethodPost:    "\033[0;33mPOST\033[0m",
+	http.MethodPut:     "\033[0;36mPUT\033[0m",
+	http.MethodPatch:   "\033[0;32mPATCH\033[0m",
+	http.MethodDelete:  "\033[0;31mDELETE\033[0m",
+	http.MethodConnect: "\033[0;37mCONNECT\033[0m",
+	http.MethodOptions: "\033[0;37mOPTIONS\033[0m",
+	http.MethodTrace:   "\033[0;37mTRACE\033[0m",
+}
 
 type debugPrintRouteInfo struct {
 	handler, route string
@@ -59,23 +74,35 @@ func NewHandler(mode string, recovery, ginLogger gin.HandlerFunc) *Handler {
 
 // Print print route info
 func (handler *Handler) Print() {
-	var logger = logrus.New()
-	logger.SetFormatter(&logrus.TextFormatter{
-		ForceColors:  true,
-		DisableQuote: true,
+	var (
+		logger           = log.New(os.Stdout, "\033[1;32m[Router]\033[0m"+strings.Repeat(" ", 4), log.Lmsgprefix)
+		handlerMaxLength = 0
+		routerMaxLength  = 0
+		routers          = handler.router.Routes()
+	)
+	sort.Slice(routers, func(i, j int) bool {
+		return routers[i].Path < routers[j].Path
 	})
 
-	var handlerMaxLength = 0
-	for _, info := range handler.router.Routes() {
+	for _, info := range routers {
 		if len(info.Handler) > handlerMaxLength {
 			handlerMaxLength = len(info.Handler)
 		}
+
+		var paddingText = strings.Repeat(" ", 10-len(info.Method))
+		if len(info.Method+paddingText+info.Path) > routerMaxLength {
+			routerMaxLength = len(info.Method + paddingText + info.Path)
+		}
 	}
 
-	for _, info := range handler.router.Routes() {
-		var file, line = runtime.FuncForPC(reflect.ValueOf(info.HandlerFunc).Pointer()).FileLine(reflect.ValueOf(info.HandlerFunc).Pointer())
-		logger.WithField("handler", info.Handler+strings.Repeat(" ", handlerMaxLength+4-len(info.Handler))+fmt.Sprintf("%s:%d", file, line)).
-			Println(info.Method + strings.Repeat(" ", 10-len(info.Method)) + info.Path)
+	for _, info := range routers {
+		var (
+			handlerPointer = reflect.ValueOf(info.HandlerFunc).Pointer()
+			file, line     = runtime.FuncForPC(handlerPointer).FileLine(handlerPointer)
+			paddingText    = strings.Repeat(" ", 10-len(info.Method))
+			text           = methodColor[info.Method] + paddingText + info.Path + strings.Repeat(" ", routerMaxLength+4-len(info.Method+paddingText+info.Path)) + fmt.Sprintf("\033[0;36m%s\033[0m", info.Handler) + strings.Repeat(" ", handlerMaxLength+4-len(info.Handler)) + fmt.Sprintf("%s:%d", file, line)
+		)
+		logger.Println(fmt.Sprintf("\033[1;32m%s\033[0m", text))
 	}
 }
 

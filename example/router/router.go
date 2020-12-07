@@ -18,7 +18,18 @@ func Router(router *gin.Engine) {
 	router.Any("/crud/*any", crud.Controller)
 
 	router.POST("member/register", member.Register)
-
+	//router.GET("/tmp", func(ctx *gin.Context) {
+	//	ctx.HTML(http.StatusOK, "index", gin.H{
+	//		"links": gin.H{
+	//			"/captcha/verify": "captcha-verify",
+	//			"/session/set":    "set-session",
+	//			"/session/get":    "get-session",
+	//			"/session/del":    "delete-session",
+	//			"/captcha/img":    "captcha-image",
+	//			"/crud/member":    "list-member",
+	//		},
+	//	})
+	//})
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "index", gin.H{
 			"links": gin.H{

@@ -26,6 +26,10 @@ type Sessions struct {
 	mu    sync.RWMutex
 }
 
+func (s *Sessions) Node() string {
+	return "sessions"
+}
+
 // OnChange reinitialize when configuration file changes
 func (s *Sessions) OnChange(viper *viper.Viper) {
 	s.mu.Lock()

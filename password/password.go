@@ -20,6 +20,10 @@ type Password struct {
 	l ILogger
 }
 
+func (pwd Password) Node() string {
+	return "password"
+}
+
 // OnChange ...
 func (pwd Password) OnChange(viper *viper.Viper) {
 	_ = viper.Unmarshal(&pwd.Config)

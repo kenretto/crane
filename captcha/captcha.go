@@ -22,6 +22,10 @@ type (
 	}
 )
 
+func (loader *Loader) Node() string {
+	return "captcha"
+}
+
 // NewCaptcha return Loader pointer
 func NewCaptcha() *Loader {
 	return new(Loader)

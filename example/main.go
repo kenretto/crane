@@ -24,7 +24,7 @@ func (my *MyCrane) IntegrationRedis() {
 		fmt.Println("hello, redis")
 		return nil
 	}
-	my.Configurator.Add("redis", my.MyRedis)
+	my.Configurator.Add(my.MyRedis)
 }
 
 // Redis get redis

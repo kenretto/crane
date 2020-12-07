@@ -26,6 +26,10 @@ type Logger struct {
 	rw         sync.RWMutex
 }
 
+func (l *Logger) Node() string {
+	return "logger"
+}
+
 // LogLevel logger level
 func (l *Logger) LogLevel() logrus.Level {
 	return map[string]logrus.Level{
