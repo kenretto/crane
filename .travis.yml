@@ -1,0 +1,13 @@
+language: go
+
+env:
+  - GO111MODULE=on
+services:
+  - redis
+  - mysql
+
+before_install:
+  - mysql -e 'CREATE DATABASE crane;'
+
+go:
+  - 1.15.x
