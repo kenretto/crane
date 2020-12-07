@@ -18,7 +18,7 @@ func TestLoader(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c.Add("captcha", captcha)
+	c.Add(captcha)
 	id, b64s, err := captcha.Instance().WithLogger(logrus.New()).Generate()
 	if err != nil {
 		t.Error(err)
@@ -54,7 +54,7 @@ func TestImplLoader(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c.Add("captcha", captcha)
+	c.Add(captcha)
 	id, b64s, err := captcha.Instance().WithLogger(logrus.New()).Generate()
 	if err != nil {
 		t.Error(err)

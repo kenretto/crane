@@ -16,7 +16,7 @@ func main() {
 	}
 
 	var sess = new(sessions.Sessions)
-	c.Add("session", sess)
+	c.Add(sess)
 
 	s.Handler(func(router *gin.Engine) {
 		r := sess.Inject(router)
@@ -31,7 +31,6 @@ func main() {
 		})
 	})
 
-	c.Add("server", s)
-
-	s.Run()
+	c.Add(s)
+	s.Listen()
 }

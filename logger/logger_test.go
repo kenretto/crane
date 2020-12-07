@@ -11,7 +11,7 @@ func TestLogger_Instance(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c.Add("logger", logger)
+	c.Add(logger)
 	logger.Instance().Info("this is info message")
 	logger.Instance().Warn("this is warn message")
 	logger.Instance().Error("this is error message")

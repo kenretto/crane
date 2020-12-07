@@ -24,7 +24,7 @@ func TestRBinding(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	}
-	c.Add("redis", r)
+	c.Add(r)
 	t.Log(NewDefaultRBinding(context.Background(), r).Set("test_go", "123456789", 0))
 
 	var out string
@@ -53,7 +53,7 @@ func TestCacheGet(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	}
-	c.Add("redis", r)
+	c.Add(r)
 	var ticker = time.NewTicker(1 * time.Second)
 	var age = 25
 	for {
@@ -87,7 +87,7 @@ func TestRBinding_MGet(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	}
-	c.Add("redis", r)
+	c.Add(r)
 	_ = NewDefaultRBinding(context.Background(), r).Set("nickname", "medivh", 0)
 	_ = NewDefaultRBinding(context.Background(), r).Set("age", 25, 0)
 	_ = NewDefaultRBinding(context.Background(), r).Set("money", 12.34, 0)
@@ -118,7 +118,7 @@ func TestRBinding_GetSet(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	}
-	c.Add("redis", r)
+	c.Add(r)
 	var u = user{
 		Username: "medivh2",
 		Age:      uint8(6),
@@ -139,7 +139,7 @@ func TestRBinding_List(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	}
-	c.Add("redis", r)
+	c.Add(r)
 	NewDefaultRBinding(context.Background(), r).List("list").LPush("a", "b", "c", "d", "e")
 	NewDefaultRBinding(context.Background(), r).List("list").LPush("f")
 	NewDefaultRBinding(context.Background(), r).List("list").LPush("g")
@@ -178,7 +178,7 @@ func TestRBinding_Set(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	}
-	c.Add("redis", r)
+	c.Add(r)
 	t.Log(r.Config)
 	NewDefaultRBinding(context.Background(), r).Sets("set_1").SAdd("a", "b", "c", "e")
 	NewDefaultRBinding(context.Background(), r).Sets("set_2").SAdd("a", "c")

@@ -15,12 +15,12 @@ func main() {
 		panic(err)
 	}
 
-	c.Add("server", s)
+	c.Add(s)
 	s.Handler(func(router *gin.Engine) {
 		router.GET("/", func(context *gin.Context) {
 			context.String(http.StatusOK, fmt.Sprintf("hello world: %s", s.Addr))
 		})
 	})
 
-	s.Run()
+	s.Listen()
 }

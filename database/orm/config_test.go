@@ -21,7 +21,7 @@ func TestLoader_DB(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c.Add("database", loader)
+	c.Add(loader)
 
 	var table area
 	err = loader.DB().Migrator().AutoMigrate(&table)

@@ -11,7 +11,7 @@ func TestPassword_Hash(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	c.Add("password", pwd)
+	c.Add(pwd)
 	if !pwd.Instance().Verify("hello", "world", "$2a$10$b2tatYGfdgjOqfFoVWNvWum47N45blcGn/HUrxc08oFtfkBTXQGGa") {
 		t.Error("password error")
 	}
